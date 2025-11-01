@@ -32,11 +32,11 @@ public class LoginFrame extends JFrame {
     private void initializeUI() {
         setTitle("Expense Manager");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 500);
+        setSize(400, 600);
         setLocationRelativeTo(null);
         setResizable(false);
         setUndecorated(true);
-        setShape(new RoundRectangle2D.Double(0, 0, 400, 500, 20, 20));
+        setShape(new RoundRectangle2D.Double(0, 0, 400, 600, 20, 20));
 
         mainPanel = new JPanel();
         cardLayout = new CardLayout();
@@ -132,64 +132,128 @@ public class LoginFrame extends JFrame {
         registerPanel.setBackground(Color.WHITE);
         registerPanel.setBorder(new EmptyBorder(20, 40, 20, 40));
 
+        //close btn
         JButton closeButton = createIconButton("×", 360, 10, 30, 30);
         closeButton.addActionListener(e -> System.exit(0));
         registerPanel.add(closeButton);
 
+        //back btm
         JButton backButton = createIconButton("←", 10, 10, 30, 30);
         backButton.addActionListener(e -> animateTransition("login"));
         registerPanel.add(backButton);
 
+        //title
         JLabel titleLabel = new JLabel("Create Account", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setForeground(new Color(52, 152, 219));
-        titleLabel.setBounds(100, 60, 200, 30);
+        titleLabel.setBounds(100, 40, 200, 30);
         registerPanel.add(titleLabel);
 
+        //fiels
         JTextField regUsernameField = createStyledTextField();
+        JTextField regEmailField = createStyledTextField();
+        JTextField regFullNameField = createStyledTextField();
         JPasswordField regPasswordField = new JPasswordField();
         JPasswordField confirmPasswordField = new JPasswordField();
         styleTextField(regPasswordField);
         styleTextField(confirmPasswordField);
 
-        JLabel userLabel = new JLabel("👤 Username");
+
+        JLabel fullNameLabel = new JLabel("Full Name");
+        fullNameLabel.setFont(new Font("Segoe UI Emoji", Font.BOLD, 14));
+        fullNameLabel.setBounds(50, 90, 300, 20);
+        registerPanel.add(fullNameLabel);
+        regFullNameField.setBounds(50, 115, 300, 40);
+        registerPanel.add(regFullNameField);
+
+
+        JLabel userLabel = new JLabel("Username");
         userLabel.setFont(new Font("Segoe UI Emoji", Font.BOLD, 14));
-        userLabel.setBounds(50, 120, 300, 20);
+        userLabel.setBounds(50, 165, 300, 20);
         registerPanel.add(userLabel);
-        regUsernameField.setBounds(50, 145, 300, 40);
+        regUsernameField.setBounds(50, 190, 300, 40);
         registerPanel.add(regUsernameField);
 
-        JLabel passLabel = new JLabel("🔒 Password");
+
+        JLabel emailLabel = new JLabel("Email");
+        emailLabel.setFont(new Font("Segoe UI Emoji", Font.BOLD, 14));
+        emailLabel.setBounds(50, 240, 300, 20);
+        registerPanel.add(emailLabel);
+        regEmailField.setBounds(50, 265, 300, 40);
+        registerPanel.add(regEmailField);
+
+
+        JLabel passLabel = new JLabel("Password");
         passLabel.setFont(new Font("Segoe UI Emoji", Font.BOLD, 14));
-        passLabel.setBounds(50, 200, 300, 20);
+        passLabel.setBounds(50, 315, 300, 20);
         registerPanel.add(passLabel);
-        regPasswordField.setBounds(50, 225, 300, 40);
+        regPasswordField.setBounds(50, 340, 300, 40);
         registerPanel.add(regPasswordField);
 
-        JLabel confirmLabel = new JLabel("🔒 Confirm Password");
+
+        JLabel confirmLabel = new JLabel("Confirm Password");
         confirmLabel.setFont(new Font("Segoe UI Emoji", Font.BOLD, 14));
-        confirmLabel.setBounds(50, 280, 300, 20);
+        confirmLabel.setBounds(50, 390, 300, 20);
         registerPanel.add(confirmLabel);
-        confirmPasswordField.setBounds(50, 305, 300, 40);
+        confirmPasswordField.setBounds(50, 415, 300, 40);
         registerPanel.add(confirmPasswordField);
 
         registerButton = createStyledButton("REGISTER", new Color(46, 204, 113));
-        registerButton.setBounds(50, 380, 300, 45);
+        registerButton.setBounds(50, 475, 300, 45);  // Changed Y position
         registerButton.addActionListener(e -> {
-            String username = regUsernameField.getText();
+            String username = regUsernameField.getText().trim();
+            String email = regEmailField.getText().trim();
+            String fullName = regFullNameField.getText().trim();
             String password = new String(regPasswordField.getPassword());
             String confirmPass = new String(confirmPasswordField.getPassword());
 
+            if (username.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Username is required!");
+                return;
+            }
+
+            if (email.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Email is required!");
+                return;
+            }
+
+            if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                JOptionPane.showMessageDialog(this, "Invalid email format!");
+                return;
+            }
+
+            if (fullName.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Full name is required!");
+                return;
+            }
+
+            if (password.isEmpty() || confirmPass.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Password fields cannot be empty!");
+                return;
+            }
+
+            if (password.length() < 6) {
+                JOptionPane.showMessageDialog(this, "Password must be at least 6 characters!");
+                return;
+            }
+
             if (password.equals(confirmPass)) {
                 try {
-                    userDAO.createUser(username, password);
-                    JOptionPane.showMessageDialog(this, "Registration successful! ✅");
+                    userDAO.createUser(username, password, email, fullName);
+                    JOptionPane.showMessageDialog(this, "Registration successful!");
+
+                    regUsernameField.setText("");
+                    regEmailField.setText("");
+                    regFullNameField.setText("");
+                    regPasswordField.setText("");
+                    confirmPasswordField.setText("");
+
                     animateTransition("login");
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Registration failed: " + ex.getMessage() + " ❌");
+                    JOptionPane.showMessageDialog(this, "Registration failed: " + ex.getMessage());
                 }
             } else {
-                JOptionPane.showMessageDialog(this, "Passwords don't match! ❌");
+                JOptionPane.showMessageDialog(this, "Passwords don't match!");
             }
         });
         registerPanel.add(registerButton);
@@ -206,10 +270,10 @@ public class LoginFrame extends JFrame {
                 new DashboardFrame(user);
             } else {
                 shakeTimer.start();
-                JOptionPane.showMessageDialog(this, "Invalid username or password! ❌");
+                JOptionPane.showMessageDialog(this, "Invalid username or password!");
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Login error: " + e.getMessage() + " ❌");
+            JOptionPane.showMessageDialog(this, "Login error: " + e.getMessage());
         }
     }
 
@@ -227,8 +291,8 @@ public class LoginFrame extends JFrame {
     private void styleTextField(JTextField field) {
         field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         field.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(52, 152, 219), 1, true),
-            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+                BorderFactory.createLineBorder(new Color(52, 152, 219), 1, true),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
         field.setBackground(Color.WHITE);
     }

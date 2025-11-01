@@ -12,10 +12,7 @@ public class DatabaseUtil {
         String user = ConfigManager.getProperty("db.user", "root");
         String password = ConfigManager.getProperty("db.password", "");
 
-        String url = String.format(
-                "jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=UTC",
-                host, port, dbName
-        );
+        String url = String.format("jdbc:mysql://%s:%s/%s?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC", host, port, dbName);
 
         return DriverManager.getConnection(url, user, password);
     }

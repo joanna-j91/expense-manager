@@ -7,15 +7,17 @@ import com.expensemanager.utils.PasswordUtil;
 import java.sql.*;
 
 public class UserDAO {
-    public User createUser(String username, String password) throws SQLException {
-        String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
-        
+    public User createUser(String username, String password, String email, String fullName) throws SQLException {
+        String sql = "INSERT INTO users (username, password, email, full_name) VALUES (?, ?, ?, ?)";
+
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            
+
             pstmt.setString(1, username);
             pstmt.setString(2, PasswordUtil.hashPassword(password));
-            
+            pstmt.setString(3, email);
+            pstmt.setString(4, fullName);
+
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows == 0) {
                 throw new SQLException("Creating user failed, no rows affected.");
@@ -33,19 +35,23 @@ public class UserDAO {
 
     public User findByUsername(String username) throws SQLException {
         String sql = "SELECT * FROM users WHERE username = ?";
-        
+
         try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+
             pstmt.setString(1, username);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return new User(
-                        rs.getInt("id"),
-                        rs.getString("username"),
-                        rs.getString("password")
+                    User user = new User(
+                            rs.getInt("id"),
+                            rs.getString("username"),
+                            rs.getString("password")
                     );
+
+                    user.setEmail(rs.getString("email"));
+                    user.setFullName(rs.getString("full_name"));
+                    return user;
                 }
                 return null;
             }

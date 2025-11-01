@@ -78,13 +78,11 @@ public class DashboardFrame extends JFrame {
     private JPanel contentPanel;
     private CardLayout contentLayout;
 
-    //light theme
     private static final Color PRIMARY_LIGHT = Color.WHITE;
     private static final Color SECONDARY_LIGHT = new Color(245, 245, 245);
     private static final Color ACCENT_LIGHT = Color.BLACK;
     private static final Color TEXT_LIGHT = Color.BLACK;
 
-    //dark theme colours
     private static final Color PRIMARY_DARK = Color.BLACK;
     private static final Color SECONDARY_DARK = new Color(30, 30, 30);
     private static final Color ACCENT_DARK = Color.WHITE;
@@ -97,7 +95,6 @@ public class DashboardFrame extends JFrame {
     private static final Color SUCCESS_COLOR = new Color(40, 40, 40);
     private static final Color ERROR_COLOR = new Color(60, 60, 60);
 
-    //current theme
     private Color primaryColor = PRIMARY_LIGHT;
     private Color secondaryColor = SECONDARY_LIGHT;
     private Color accentColor = ACCENT_LIGHT;
@@ -274,7 +271,8 @@ public class DashboardFrame extends JFrame {
         logoLabel.setForeground(accentColor);
         logoLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel welcomeLabel = new JLabel("Welcome, " + currentUser.getUsername() + "!");
+        String displayName = currentUser.getFullName() != null && !currentUser.getFullName().isEmpty() ? currentUser.getFullName() : currentUser.getUsername();
+        JLabel welcomeLabel = new JLabel("Welcome, " + displayName );
         welcomeLabel.setFont(REGULAR_FONT);
         welcomeLabel.setForeground(new Color(128, 128, 128));
         welcomeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -502,8 +500,6 @@ public class DashboardFrame extends JFrame {
     }
 
     private void addCategoryChart(JPanel container) {
-        // Similar to addExpenseChart but with different chart type
-        // Implementation omitted for brevity
     }
 
     private JPanel createRecentTransactionsPanel() {
@@ -515,7 +511,7 @@ public class DashboardFrame extends JFrame {
         titleLabel.setFont(SUBTITLE_FONT);
         titleLabel.setBorder(new EmptyBorder(20, 20, 10, 20));
 
-        // Create table with real data
+
         String[] columns = {"Date", "Category", "Description", "Amount", "Actions"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
@@ -532,7 +528,7 @@ public class DashboardFrame extends JFrame {
                     expense.get("category") + " " + getCategoryIcon((String)expense.get("category")),
                     expense.get("description"),
                     String.format("$%.2f", expense.get("amount")),
-                    expense.get("id") // Store ID for actions
+                    expense.get("id")
                 });
             }
         } catch (SQLException e) {
@@ -546,7 +542,7 @@ public class DashboardFrame extends JFrame {
         table.setBackground(primaryColor);
         table.getTableHeader().setFont(REGULAR_FONT.deriveFont(Font.BOLD));
 
-        // Set custom renderer for the actions column
+
         table.getColumnModel().getColumn(4).setCellRenderer(new TableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
@@ -565,7 +561,6 @@ public class DashboardFrame extends JFrame {
             }
         });
 
-        // Set custom editor for the actions column
         table.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(new JTextField()) {
             private Object cellValue;
 
@@ -604,7 +599,6 @@ public class DashboardFrame extends JFrame {
             }
         });
 
-        // Adjust column widths
         table.getColumnModel().getColumn(4).setPreferredWidth(100);
         table.getColumnModel().getColumn(4).setMaxWidth(100);
 
@@ -658,17 +652,13 @@ public class DashboardFrame extends JFrame {
         expensesPanel.setBackground(secondaryColor);
         expensesPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        // Header with search controls
         JPanel headerPanel = createExpensesHeaderPanel();
 
-        // Create main content panel
         JPanel mainContent = new JPanel(new BorderLayout(0, 20));
         mainContent.setBackground(secondaryColor);
 
-        // Filter controls panel
         JPanel filterPanel = createFilterPanel();
 
-        // Scrollable panel for month sections
         JPanel monthsContainer = new JPanel();
         monthsContainer.setLayout(new BoxLayout(monthsContainer, BoxLayout.Y_AXIS));
         monthsContainer.setBackground(secondaryColor);
@@ -678,12 +668,10 @@ public class DashboardFrame extends JFrame {
         scrollPane.getViewport().setBackground(secondaryColor);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        // Store references for filtering
         this.monthsContainer = monthsContainer;
         this.expensesScrollPane = scrollPane;
 
-        // Load and display expenses by month
-        loadExpensesByMonth(monthsContainer, null); // null = show all categories
+        loadExpensesByMonth(monthsContainer, null);
 
         mainContent.add(filterPanel, BorderLayout.NORTH);
         mainContent.add(scrollPane, BorderLayout.CENTER);
@@ -694,7 +682,6 @@ public class DashboardFrame extends JFrame {
         contentPanel.add(expensesPanel, "expenses");
     }
 
-    // Add these as instance variables at the top of your class
     private JPanel monthsContainer;
     private JScrollPane expensesScrollPane;
     private JComboBox<String> categoryFilter;
@@ -745,7 +732,6 @@ public class DashboardFrame extends JFrame {
             loadExpensesByMonth(monthsContainer, filterCategory);
         });
 
-        // Search field
         JLabel searchLabel = new JLabel("Search:");
         searchLabel.setFont(REGULAR_FONT);
         searchLabel.setForeground(textColor);
@@ -757,7 +743,6 @@ public class DashboardFrame extends JFrame {
                 new EmptyBorder(5, 10, 5, 10)
         ));
 
-        // Add search functionality with delay
         Timer searchTimer = new Timer(500, null);
         searchTimer.setRepeats(false);
 
@@ -792,10 +777,8 @@ public class DashboardFrame extends JFrame {
         container.removeAll();
 
         try {
-            // Get expenses with optional filtering
             List<Map<String, Object>> expenses = getFilteredExpenses(categoryFilter, searchText);
 
-            // Group expenses by month-year
             Map<String, List<Map<String, Object>>> expensesByMonth = new LinkedHashMap<>();
             SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM yyyy");
 
@@ -815,7 +798,6 @@ public class DashboardFrame extends JFrame {
                 noDataLabel.setHorizontalAlignment(SwingConstants.CENTER);
                 container.add(noDataLabel);
             } else {
-                // Create sections for each month
                 boolean isFirst = true;
                 for (Map.Entry<String, List<Map<String, Object>>> monthEntry : expensesByMonth.entrySet()) {
                     if (!isFirst) {
@@ -888,7 +870,6 @@ public class DashboardFrame extends JFrame {
         sectionPanel.setBackground(secondaryColor);
         sectionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Month header with total
         BigDecimal monthTotal = expenses.stream()
                 .map(e -> (BigDecimal) e.get("amount"))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -912,7 +893,6 @@ public class DashboardFrame extends JFrame {
         headerPanel.add(monthLabel, BorderLayout.WEST);
         headerPanel.add(totalLabel, BorderLayout.EAST);
 
-        // Expenses table for this month
         String[] columns = {"Date", "Category", "Description", "Amount", "Actions"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
@@ -937,7 +917,6 @@ public class DashboardFrame extends JFrame {
         table.setBackground(primaryColor);
         table.getTableHeader().setFont(REGULAR_FONT.deriveFont(Font.BOLD));
 
-        // Setup actions column
         setupActionsColumn(table);
 
         JScrollPane tableScroll = new JScrollPane(table);
@@ -952,7 +931,6 @@ public class DashboardFrame extends JFrame {
     }
 
     private void setupActionsColumn(JTable table) {
-        // Copy the actions column setup from your createRecentTransactionsPanel() method
         table.getColumnModel().getColumn(4).setCellRenderer(new TableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
@@ -1018,20 +996,15 @@ public class DashboardFrame extends JFrame {
         analyticsPanel.setBackground(secondaryColor);
         analyticsPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        // Header
         JPanel headerPanel = createAnalyticsHeaderPanel();
 
-        // Controls Panel
         JPanel controlsPanel = createAnalyticsControlsPanel();
 
-        // Charts Container
         JPanel chartsContainer = new JPanel(new GridLayout(1, 2, 20, 0));
         chartsContainer.setBackground(secondaryColor);
 
-        // Store reference for updating charts
         this.analyticsChartsContainer = chartsContainer;
 
-        // Load initial charts for current month
         LocalDate currentMonth = LocalDate.now().withDayOfMonth(1);
         updateAnalyticsCharts(currentMonth);
 
@@ -1042,7 +1015,6 @@ public class DashboardFrame extends JFrame {
         contentPanel.add(analyticsPanel, "analytics");
     }
 
-    // Add this as instance variable
     private JPanel analyticsChartsContainer;
     private JComboBox<String> monthYearCombo;
 
@@ -1068,7 +1040,6 @@ public class DashboardFrame extends JFrame {
         monthLabel.setFont(REGULAR_FONT);
         monthLabel.setForeground(textColor);
 
-        // Generate month-year options for the last 12 months
         String[] monthOptions = generateMonthOptions();
         monthYearCombo = new JComboBox<>(monthOptions);
         monthYearCombo.setFont(REGULAR_FONT);
@@ -1094,7 +1065,6 @@ public class DashboardFrame extends JFrame {
         LocalDate current = LocalDate.now().withDayOfMonth(1);
         SimpleDateFormat formatter = new SimpleDateFormat("MMMM yyyy");
 
-        // Add current month and 11 previous months
         for (int i = 0; i < 12; i++) {
             LocalDate month = current.minusMonths(i);
             String monthStr = formatter.format(Date.from(month.atStartOfDay()
@@ -1119,7 +1089,6 @@ public class DashboardFrame extends JFrame {
         analyticsChartsContainer.removeAll();
 
         try {
-            // Get expense data for the selected month
             LocalDate startDate = selectedMonth.withDayOfMonth(1);
             LocalDate endDate = selectedMonth.withDayOfMonth(selectedMonth.lengthOfMonth());
 
@@ -1127,7 +1096,6 @@ public class DashboardFrame extends JFrame {
                     currentUser.getId(), startDate, endDate);
 
             if (categoryData.isEmpty()) {
-                // Show "No data" message
                 JPanel noDataPanel = new JPanel(new BorderLayout());
                 noDataPanel.setBackground(primaryColor);
                 noDataPanel.setBorder(new RoundedBorder(10, new Color(230, 230, 230)));
@@ -1140,12 +1108,10 @@ public class DashboardFrame extends JFrame {
 
                 noDataPanel.add(noDataLabel, BorderLayout.CENTER);
                 analyticsChartsContainer.add(noDataPanel);
-                analyticsChartsContainer.add(new JPanel()); // Empty panel for grid layout
+                analyticsChartsContainer.add(new JPanel());
             } else {
-                // Create pie chart
                 JPanel pieChartPanel = createCategoryPieChart(categoryData, selectedMonth);
 
-                // Create bar chart
                 JPanel barChartPanel = createCategoryBarChart(categoryData, selectedMonth);
 
                 analyticsChartsContainer.add(pieChartPanel);
@@ -1173,14 +1139,12 @@ public class DashboardFrame extends JFrame {
         String title = "Expense Distribution - " + month.format(DateTimeFormatter.ofPattern("MMMM yyyy"));
         JFreeChart chart = ChartFactory.createPieChart("", dataset, false, true, false);
 
-        // Create modern styling
         chart.setBackgroundPaint(Color.WHITE);
         chart.setBorderVisible(false);
         chart.setPadding(new RectangleInsets(20, 20, 20, 20));
 
         PiePlot plot = (PiePlot) chart.getPlot();
 
-        // Create donut effect
         plot.setCircular(true);
         plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}: {2}",
                 NumberFormat.getNumberInstance(), new DecimalFormat("0.0%")));
@@ -1190,7 +1154,6 @@ public class DashboardFrame extends JFrame {
         plot.setLabelOutlinePaint(Color.LIGHT_GRAY);
         plot.setLabelShadowPaint(null);
 
-        // Modern color palette
         Color[] colors = {
                 new Color(231, 76, 60),    // Red
                 new Color(52, 152, 219),   // Blue
@@ -1212,12 +1175,10 @@ public class DashboardFrame extends JFrame {
             colorIndex++;
         }
 
-        // Remove default styling
         plot.setBackgroundPaint(Color.WHITE);
         plot.setOutlineVisible(false);
         plot.setShadowPaint(null);
 
-        // Add title manually with better positioning
         TextTitle chartTitle = new TextTitle(title);
         chartTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         chartTitle.setPaint(new Color(44, 62, 80));
@@ -1230,7 +1191,6 @@ public class DashboardFrame extends JFrame {
         chartPanel.setPreferredSize(new Dimension(400, 350));
         chartPanel.setBorder(null);
 
-        // Create wrapper with shadow effect
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setBackground(Color.WHITE);
         wrapper.setBorder(BorderFactory.createCompoundBorder(
@@ -1255,8 +1215,8 @@ public class DashboardFrame extends JFrame {
 
         String title = "Category Comparison - " + month.format(DateTimeFormatter.ofPattern("MMMM yyyy"));
         JFreeChart chart = ChartFactory.createBarChart(
-                "",  // Empty title, we'll add it manually
-                "",  // Empty category axis label
+                "",
+                "",
                 "Amount ($)",
                 dataset,
                 PlotOrientation.VERTICAL,
@@ -1265,24 +1225,20 @@ public class DashboardFrame extends JFrame {
                 false
         );
 
-        // Modern chart styling
         chart.setBackgroundPaint(Color.WHITE);
         chart.setBorderVisible(false);
         chart.setPadding(new RectangleInsets(20, 20, 20, 20));
 
         CategoryPlot plot = chart.getCategoryPlot();
 
-        // Clean background
         plot.setBackgroundPaint(Color.WHITE);
         plot.setDomainGridlinesVisible(false);
         plot.setRangeGridlinesVisible(true);
         plot.setRangeGridlinePaint(new Color(240, 240, 240));
         plot.setOutlineVisible(false);
 
-        // Modern bar renderer
         BarRenderer renderer = new BarRenderer();
 
-        // Gradient colors for bars
         GradientPaint[] gradients = {
                 new GradientPaint(0, 0, new Color(231, 76, 60), 0, 300, new Color(192, 57, 43)),
                 new GradientPaint(0, 0, new Color(52, 152, 219), 0, 300, new Color(41, 128, 185)),
@@ -1302,7 +1258,6 @@ public class DashboardFrame extends JFrame {
 
         plot.setRenderer(renderer);
 
-        // Style axes
         CategoryAxis domainAxis = plot.getDomainAxis();
         domainAxis.setLabelFont(new Font("Segoe UI", Font.PLAIN, 12));
         domainAxis.setTickLabelFont(new Font("Segoe UI", Font.PLAIN, 11));
@@ -1320,7 +1275,7 @@ public class DashboardFrame extends JFrame {
         rangeAxis.setTickMarksVisible(false);
         rangeAxis.setNumberFormatOverride(new DecimalFormat("$#,##0"));
 
-        // Add title
+
         TextTitle chartTitle = new TextTitle(title);
         chartTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         chartTitle.setPaint(new Color(44, 62, 80));
@@ -1349,14 +1304,12 @@ public class DashboardFrame extends JFrame {
         budgetsPanel.setBackground(secondaryColor);
         budgetsPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        // Header
+
         JPanel headerPanel = createBudgetsHeaderPanel();
 
-        // Main content
         JPanel mainContent = new JPanel(new BorderLayout(0, 20));
         mainContent.setBackground(secondaryColor);
 
-        // Budgets container
         JPanel budgetsContainer = new JPanel();
         budgetsContainer.setLayout(new BoxLayout(budgetsContainer, BoxLayout.Y_AXIS));
         budgetsContainer.setBackground(secondaryColor);
@@ -1366,7 +1319,6 @@ public class DashboardFrame extends JFrame {
         scrollPane.getViewport().setBackground(secondaryColor);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        // Load budgets
         loadBudgets(budgetsContainer);
 
         mainContent.add(scrollPane, BorderLayout.CENTER);
@@ -1436,12 +1388,11 @@ public class DashboardFrame extends JFrame {
                 new EmptyBorder(20, 20, 20, 20)
         ));
 
-        // Left side - Category info
         JPanel leftPanel = new JPanel(new BorderLayout(10, 5));
         leftPanel.setBackground(primaryColor);
 
         String categoryName = (String) budget.get("category_name");
-        JLabel categoryLabel = new JLabel(categoryName + " " + getCategoryIcon(categoryName));
+        JLabel categoryLabel = new JLabel(categoryName);
         categoryLabel.setFont(SUBTITLE_FONT);
         categoryLabel.setForeground(textColor);
 
@@ -1456,7 +1407,6 @@ public class DashboardFrame extends JFrame {
         leftPanel.add(categoryLabel, BorderLayout.NORTH);
         leftPanel.add(dateLabel, BorderLayout.CENTER);
 
-        // Center - Progress bar and amounts
         JPanel centerPanel = new JPanel(new BorderLayout(0, 10));
         centerPanel.setBackground(primaryColor);
 
@@ -1467,7 +1417,6 @@ public class DashboardFrame extends JFrame {
                 ? spentAmount.divide(budgetAmount, 4, RoundingMode.HALF_UP).multiply(new BigDecimal(100)).doubleValue()
                 : 0;
 
-        // Amounts panel
         JPanel amountsPanel = new JPanel(new GridLayout(1, 3, 10, 0));
         amountsPanel.setBackground(primaryColor);
 
@@ -1475,26 +1424,23 @@ public class DashboardFrame extends JFrame {
         amountsPanel.add(createAmountLabel("Spent", String.format("$%.2f", spentAmount)));
         amountsPanel.add(createAmountLabel("Remaining", String.format("$%.2f", remaining)));
 
-        // Progress bar
         JProgressBar progressBar = new JProgressBar(0, 100);
         progressBar.setValue((int) percentage);
         progressBar.setStringPainted(true);
         progressBar.setString(String.format("%.1f%%", percentage));
         progressBar.setPreferredSize(new Dimension(0, 25));
 
-        // Color code the progress bar
         if (percentage >= 100) {
-            progressBar.setForeground(new Color(231, 76, 60)); // Red - over budget
+            progressBar.setForeground(new Color(231, 76, 60));
         } else if (percentage >= 80) {
-            progressBar.setForeground(new Color(241, 196, 15)); // Yellow - warning
+            progressBar.setForeground(new Color(241, 196, 15));
         } else {
-            progressBar.setForeground(new Color(46, 204, 113)); // Green - good
+            progressBar.setForeground(new Color(46, 204, 113));
         }
 
         centerPanel.add(amountsPanel, BorderLayout.NORTH);
         centerPanel.add(progressBar, BorderLayout.CENTER);
 
-        // Right side - Delete button
         JButton deleteButton = new JButton("Delete");
         deleteButton.setFont(REGULAR_FONT);
         deleteButton.setForeground(new Color(231, 76, 60));
@@ -1545,37 +1491,35 @@ public class DashboardFrame extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(5, 5, 5, 5);
 
-        // Category Field
+
         JLabel categoryLabel = new JLabel("Category:");
         String[] categories = {"Food", "Transport", "Shopping", "Entertainment", "Bills",
                 "Healthcare", "Education", "Housing", "Travel", "Others"};
         JComboBox<String> categoryBox = new JComboBox<>(categories);
         addFormField(formPanel, categoryLabel, categoryBox, gbc, 0);
 
-        // Amount Field
+
         JLabel amountLabel = new JLabel("Budget Amount:");
         JTextField amountField = new JTextField();
         addFormField(formPanel, amountLabel, amountField, gbc, 1);
 
-        // Start Date
+
         JLabel startLabel = new JLabel("Start Date:");
         JSpinner startSpinner = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor startEditor = new JSpinner.DateEditor(startSpinner, "yyyy-MM-dd");
         startSpinner.setEditor(startEditor);
         addFormField(formPanel, startLabel, startSpinner, gbc, 2);
 
-        // End Date
+
         JLabel endLabel = new JLabel("End Date:");
         JSpinner endSpinner = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor endEditor = new JSpinner.DateEditor(endSpinner, "yyyy-MM-dd");
         endSpinner.setEditor(endEditor);
-        // Set default end date to 30 days from now
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, 30);
         endSpinner.setValue(cal.getTime());
         addFormField(formPanel, endLabel, endSpinner, gbc, 3);
 
-        // Buttons Panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.setBackground(primaryColor);
 
@@ -1602,7 +1546,6 @@ public class DashboardFrame extends JFrame {
                 expenseDAO.createBudget(currentUser.getId(), category, amount, startDate, endDate);
                 dialog.dispose();
 
-                // Refresh budgets view
                 refreshBudgetsView();
                 showSuccessMessage("Budget created successfully!");
             } catch (NumberFormatException ex) {
@@ -1644,7 +1587,7 @@ public class DashboardFrame extends JFrame {
         contentPanel.removeAll();
         createDashboardView();
         createExpensesView();
-        createBudgetsView();  // Add this line
+        createBudgetsView();
         createAnalyticsView();
         createSettingsView();
         createChatView();
@@ -1656,7 +1599,7 @@ public class DashboardFrame extends JFrame {
     private JButton createSignOutButton() {
         JButton signOutButton = new JButton("Sign Out");
         signOutButton.setFont(REGULAR_FONT);
-        signOutButton.setForeground(new Color(231, 76, 60)); // Red color for sign out
+        signOutButton.setForeground(new Color(231, 76, 60));
         signOutButton.setBackground(primaryColor);
         signOutButton.setBorder(BorderFactory.createEmptyBorder(12, 20, 12, 20));
         signOutButton.setHorizontalAlignment(SwingConstants.LEFT);
@@ -1693,10 +1636,8 @@ public class DashboardFrame extends JFrame {
         );
 
         if (choice == JOptionPane.YES_OPTION) {
-            // Close current window
             this.dispose();
 
-            // Open login window
             SwingUtilities.invokeLater(() -> {
                 new LoginFrame().setVisible(true);
             });
@@ -1708,29 +1649,23 @@ public class DashboardFrame extends JFrame {
         settingsPanel.setBackground(secondaryColor);
         settingsPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        // Header
         JPanel headerPanel = createHeaderPanel("Settings");
 
-        // Settings Content
         JPanel contentPanel = new JPanel(new GridLayout(0, 1, 0, 20));
         contentPanel.setBackground(secondaryColor);
 
-        // Theme Settings
         JPanel themeSection = createSettingsSection("Theme",
             "Choose between light and dark theme",
             createThemeTogglePanel());
 
 
-        // Export Settings
         JPanel exportSection = createSettingsSection("Export Data",
             "Export your expense data",
             createExportPanel());
 
-        // Add sections to content
         contentPanel.add(themeSection);
         contentPanel.add(exportSection);
 
-        // Add scroll support
         JScrollPane scrollPane = new JScrollPane(contentPanel);
         scrollPane.setBorder(null);
         scrollPane.setBackground(secondaryColor);
@@ -1750,7 +1685,6 @@ public class DashboardFrame extends JFrame {
             new EmptyBorder(20, 20, 20, 20)
         ));
 
-        // Title and description
         JPanel textPanel = new JPanel(new GridLayout(2, 1, 5, 5));
         textPanel.setBackground(primaryColor);
 
@@ -1800,14 +1734,12 @@ public class DashboardFrame extends JFrame {
             document.addPage(page);
             org.apache.pdfbox.pdmodel.PDPageContentStream contentStream = new org.apache.pdfbox.pdmodel.PDPageContentStream(document, page);
 
-            // Title
             contentStream.setFont(new org.apache.pdfbox.pdmodel.font.PDType1Font(org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName.HELVETICA_BOLD), 18);
             contentStream.beginText();
             contentStream.newLineAtOffset(50, 770);
             contentStream.showText("Expense Report for " + currentUser.getUsername());
             contentStream.endText();
 
-            // Export date
             String exportDate = java.time.LocalDate.now().toString();
             contentStream.setFont(new org.apache.pdfbox.pdmodel.font.PDType1Font(org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName.HELVETICA), 10);
             contentStream.beginText();
@@ -1815,11 +1747,10 @@ public class DashboardFrame extends JFrame {
             contentStream.showText("Exported on: " + exportDate);
             contentStream.endText();
 
-            // Table header
             int y = 730;
             int rowHeight = 20;
             int startX = 50;
-            int[] colWidths = {90, 90, 70, 220}; // Date, Category, Amount, Description
+            int[] colWidths = {90, 90, 70, 220};
             String[] headers = {"Date", "Category", "Amount", "Description"};
 
             contentStream.setFont(new org.apache.pdfbox.pdmodel.font.PDType1Font(org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName.HELVETICA_BOLD), 12);
@@ -1832,7 +1763,6 @@ public class DashboardFrame extends JFrame {
                 x += colWidths[i];
             }
 
-            // Draw table rows
             y -= rowHeight;
             contentStream.setFont(new org.apache.pdfbox.pdmodel.font.PDType1Font(org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName.HELVETICA), 11);
             for (com.expensemanager.models.Expense exp : expenses) {
@@ -1883,7 +1813,6 @@ public class DashboardFrame extends JFrame {
         chatPanel.setBackground(secondaryColor);
         chatPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        // Header
         JPanel headerPanel = createHeaderPanel("AI Financial Assistant");
 
         JButton clearButton = new JButton("Clear Chat");
@@ -1912,7 +1841,6 @@ public class DashboardFrame extends JFrame {
 
         headerPanel.add(clearButton, BorderLayout.EAST);
 
-        // Chat messages panel
         JPanel messagesPanel = new JPanel();
         messagesPanelRef[0] = messagesPanel;
         messagesPanel.setLayout(new BoxLayout(messagesPanel, BoxLayout.Y_AXIS));
@@ -1925,10 +1853,8 @@ public class DashboardFrame extends JFrame {
         scrollPane.getViewport().setBackground(primaryColor);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        // Welcome message
         addMessageBubble(messagesPanel, "Hello! I'm your AI financial assistant. How can I help you today?", false);
 
-        // Input panel with modern design
         JPanel inputPanel = new JPanel(new BorderLayout(10, 0));
         inputPanel.setBackground(secondaryColor);
         inputPanel.setBorder(new EmptyBorder(15, 0, 0, 0));
@@ -1950,7 +1876,6 @@ public class DashboardFrame extends JFrame {
         sendButton.setPreferredSize(new Dimension(50, 50));
 
 
-        // Action for sending messages
         ActionListener sendAction = e -> {
             String message = inputField.getText().trim();
             if (!message.isEmpty()) {
@@ -1958,14 +1883,12 @@ public class DashboardFrame extends JFrame {
                 inputField.setText("");
                 scrollToBottom(scrollPane);
 
-                // Show typing indicator
                 JPanel typingIndicator = createTypingIndicator();
                 messagesPanel.add(typingIndicator);
                 messagesPanel.revalidate();
                 messagesPanel.repaint();
                 scrollToBottom(scrollPane);
 
-                // Process AI response
                 SwingWorker<String, Void> worker = new SwingWorker<>() {
                     @Override
                     protected String doInBackground() throws Exception {
@@ -1977,18 +1900,15 @@ public class DashboardFrame extends JFrame {
                         try {
                             AIChatService chatService = new AIChatService(apiKey);
 
-                            // Gather comprehensive dashboard data
                             Map<String, Object> dashboardData = new HashMap<>();
                             dashboardData.put("totalExpenses", expenseDAO.getTotalExpenses(currentUser.getId()));
                             dashboardData.put("monthlyAverage", expenseDAO.getMonthlyAverage(currentUser.getId()));
                             dashboardData.put("topCategory", expenseDAO.getTopCategory(currentUser.getId()));
                             dashboardData.put("expensesByCategory", expenseDAO.getExpensesByCategory(currentUser.getId()));
 
-                            // Get recent expenses for context
                             List<Map<String, Object>> recentExpenses = expenseDAO.getRecentExpenses(currentUser.getId(), 5);
                             dashboardData.put("recentExpenses", recentExpenses);
 
-                            // Get current month data
                             LocalDate now = LocalDate.now();
                             LocalDate startOfMonth = now.withDayOfMonth(1);
                             Map<String, BigDecimal> monthlyData = expenseDAO.getExpensesByDateRange(
@@ -2005,7 +1925,6 @@ public class DashboardFrame extends JFrame {
                     @Override
                     protected void done() {
                         try {
-                            // Remove typing indicator
                             messagesPanel.remove(typingIndicator);
 
                             String response = get();
@@ -2030,12 +1949,9 @@ public class DashboardFrame extends JFrame {
         };
 
 
-
-        // Add action listeners
         sendButton.addActionListener(sendAction);
         inputField.addActionListener(sendAction);
 
-        // Add hover effect to send button
         sendButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -2088,7 +2004,6 @@ public class DashboardFrame extends JFrame {
 
         bubblePanel.add(textArea);
 
-        // Add timestamp below the message
         JLabel timeLabel = new JLabel(new java.text.SimpleDateFormat("HH:mm").format(new java.util.Date()));
         timeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 10));
         timeLabel.setForeground(new Color(128, 128, 128));
@@ -2103,7 +2018,6 @@ public class DashboardFrame extends JFrame {
         container.repaint();
     }
 
-    // Helper to calculate preferred size for JTextArea based on text and max width
     private Dimension getTextAreaPreferredSize(JTextArea textArea, int maxWidth) {
         FontMetrics fm = textArea.getFontMetrics(textArea.getFont());
         int maxLineWidth = 0;
@@ -2143,7 +2057,7 @@ public class DashboardFrame extends JFrame {
         JPanel toggleWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT));
         toggleWrapper.setBackground(primaryColor);
 
-        JLabel themeLabel = new JLabel(isDarkTheme ? THEME_ICON_DARK : THEME_ICON_LIGHT);
+        JLabel themeLabel = new JLabel(isDarkTheme ? "Dark" : "Light");
         themeLabel.setFont(REGULAR_FONT);
 
         JPanel toggleButton = new JPanel() {
@@ -2153,11 +2067,9 @@ public class DashboardFrame extends JFrame {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Draw background
                 g2d.setColor(isDarkTheme ? accentColor : new Color(200, 200, 200));
                 g2d.fillRoundRect(0, 0, getWidth(), getHeight(), getHeight(), getHeight());
 
-                // Draw toggle circle
                 g2d.setColor(Color.WHITE);
                 int diameter = getHeight() - 4;
                 int x = isDarkTheme ? getWidth() - diameter - 2 : 2;
@@ -2173,7 +2085,7 @@ public class DashboardFrame extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 toggleTheme();
-                themeLabel.setText(isDarkTheme ? THEME_ICON_DARK : THEME_ICON_LIGHT);
+                themeLabel.setText(isDarkTheme ? "Dark" : "Light");
                 toggleButton.repaint();
             }
         });
@@ -2185,7 +2097,6 @@ public class DashboardFrame extends JFrame {
     private void toggleTheme() {
         isDarkTheme = !isDarkTheme;
 
-        // Update colors
         if (isDarkTheme) {
             primaryColor = new Color(18, 18, 18);
             secondaryColor = new Color(30, 30, 30);
@@ -2198,12 +2109,10 @@ public class DashboardFrame extends JFrame {
             textColor = new Color(33, 33, 33);
         }
 
-        // Update UI with new colors
         SwingUtilities.invokeLater(() -> {
             try {
                 UIManager.setLookAndFeel(isDarkTheme ? new FlatDarkLaf() : new FlatLightLaf());
 
-                // Set custom colors
                 UIManager.put("Panel.background", primaryColor);
                 UIManager.put("Button.background", accentColor);
                 UIManager.put("Button.foreground", isDarkTheme ? primaryColor : Color.WHITE);
@@ -2217,7 +2126,6 @@ public class DashboardFrame extends JFrame {
                 UIManager.put("TableHeader.background", accentColor);
                 UIManager.put("TableHeader.foreground", isDarkTheme ? primaryColor : Color.WHITE);
 
-                // Recreate all views with new colors
                 contentPanel.removeAll();
                 createDashboardView();
                 createExpensesView();
@@ -2225,12 +2133,10 @@ public class DashboardFrame extends JFrame {
                 createSettingsView();
                 createChatView();
 
-                // Recreate sidebar
                 mainPanel.remove(sidebarPanel);
                 createSidebar();
                 mainPanel.add(sidebarPanel, BorderLayout.WEST);
 
-                // Show current view
                 contentLayout.first(contentPanel);
 
                 SwingUtilities.updateComponentTreeUI(this);
@@ -2243,24 +2149,19 @@ public class DashboardFrame extends JFrame {
     }
 
     private void refreshUI() {
-        // Update main components
         mainPanel.setBackground(primaryColor);
         sidebarPanel.setBackground(primaryColor);
         contentPanel.setBackground(secondaryColor);
 
-        // Update borders
         sidebarPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
                 isDarkTheme ? new Color(50, 50, 50) : new Color(220, 220, 220)));
 
-        // Update all child components recursively
         updateComponentTreeColors(mainPanel);
 
-        // Force complete repaint
         revalidate();
         repaint();
     }
 
-    // Add this helper method
     private void updateComponentTreeColors(Container container) {
         for (Component comp : container.getComponents()) {
             if (comp instanceof JPanel) {
@@ -2280,7 +2181,6 @@ public class DashboardFrame extends JFrame {
     private void setupAnimations() {
         javax.swing.Timer fadeTimer = new javax.swing.Timer(50, null);
         fadeTimer.addActionListener(e -> {
-            // Add fade animations for panel transitions
             contentPanel.repaint();
         });
     }
@@ -2291,7 +2191,6 @@ public class DashboardFrame extends JFrame {
 
         if (dialog.isConfirmed()) {
             try {
-                // Create new expense from dialog data
                 Expense expense = new Expense();
                 expense.setUserId(currentUser.getId());
                 expense.setAmount(new BigDecimal(String.valueOf(dialog.getAmount())));
@@ -2299,10 +2198,8 @@ public class DashboardFrame extends JFrame {
                 expense.setDescription(dialog.getDescription());
                 expense.setCategoryName(dialog.getCategory());
 
-                // Save to database
                 expenseDAO.createExpense(expense);
 
-                // Refresh the entire dashboard view
                 SwingUtilities.invokeLater(() -> {
                     contentPanel.remove(contentPanel.getComponent(0));
                     createDashboardView();
