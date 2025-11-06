@@ -111,27 +111,6 @@ public class DashboardFrame extends JFrame {
     private static final String SETTINGS_ICON = "⚙️";
     private static final String CHAT_ICON = "💬";
     private static final String ADD_ICON = "+";
-    private static final String THEME_ICON_LIGHT = "☀️";
-    private static final String THEME_ICON_DARK = "🌙";
-
-
-    private static final String FOOD_ICON = "🍴";
-    private static final String TRANSPORT_ICON = "🚗";
-    private static final String SHOPPING_ICON = "🛒";
-    private static final String ENTERTAINMENT_ICON = "🎮";
-    private static final String BILLS_ICON = "📄";
-    private static final String OTHERS_ICON = "📦";
-
-
-    private static final String EDIT_ICON = "✎";
-    private static final String DELETE_ICON = "×";
-    private static final String SEND_ICON = "→";
-    private static final String SAVE_ICON = "✓";
-    private static final String CANCEL_ICON = "✕";
-    private static final String HELP_ICON = "?";
-    private static final String SUCCESS_ICON = "✓";
-    private static final String ERROR_ICON = "!";
-    private static final String WARNING_ICON = "⚠";
 
 
     private static final String[] ICONS = {
@@ -316,17 +295,8 @@ public class DashboardFrame extends JFrame {
 
     private void addNavButton(String command, JPanel container) {
         String icon;
-        switch (command) {
-            case "dashboard": icon = getIcon(DASHBOARD); break;
-            case "expenses": icon = getIcon(EXPENSES); break;
-            case "analytics": icon = getIcon(ANALYTICS); break;
-            case "budgets": icon = "💰"; break;
-            case "chat": icon = getIcon(CHAT); break;
-            case "settings": icon = getIcon(SETTINGS); break;
-            default: icon = getIcon(ADD); break;
-        }
         String text = command.substring(0, 1).toUpperCase() + command.substring(1);
-        JButton button = createIconButton(icon + " " + text);
+        JButton button = createIconButton(text);
         button.setForeground(textColor);
         button.setBackground(primaryColor);
         button.setBorder(BorderFactory.createEmptyBorder(12, 20, 12, 20));
@@ -525,7 +495,7 @@ public class DashboardFrame extends JFrame {
             for (Map<String, Object> expense : recentExpenses) {
                 model.addRow(new Object[]{
                     expense.get("date"),
-                    expense.get("category") + " " + getCategoryIcon((String)expense.get("category")),
+                    expense.get("category"),
                     expense.get("description"),
                     String.format("$%.2f", expense.get("amount")),
                     expense.get("id")
@@ -635,17 +605,6 @@ public class DashboardFrame extends JFrame {
         return expense;
     }
 
-    private String getCategoryIcon(String category) {
-        String lowerCategory = category.toLowerCase();
-        switch (lowerCategory) {
-            case "food": return getIcon(FOOD);
-            case "transport": return getIcon(TRANSPORT);
-            case "shopping": return getIcon(SHOPPING);
-            case "entertainment": return getIcon(ENTERTAINMENT);
-            case "bills": return getIcon(BILLS);
-            default: return getIcon(OTHERS);
-        }
-    }
 
     private void createExpensesView() {
         JPanel expensesPanel = new JPanel(new BorderLayout(20, 20));
@@ -904,7 +863,7 @@ public class DashboardFrame extends JFrame {
         for (Map<String, Object> expense : expenses) {
             model.addRow(new Object[]{
                     expense.get("date"),
-                    expense.get("category") + " " + getCategoryIcon((String)expense.get("category")),
+                    expense.get("category"),
                     expense.get("description"),
                     String.format("$%.2f", expense.get("amount")),
                     expense.get("id")
@@ -2321,7 +2280,7 @@ public class DashboardFrame extends JFrame {
         gbc.insets = new Insets(5, 5, 5, 5);
 
         // Date Field
-        JLabel dateLabel = new JLabel(FOOD_ICON + " Date:");
+        JLabel dateLabel = new JLabel(" Date:");
         JSpinner dateSpinner = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd");
         dateSpinner.setEditor(dateEditor);
@@ -2329,19 +2288,19 @@ public class DashboardFrame extends JFrame {
         addFormField(formPanel, dateLabel, dateSpinner, gbc, 0);
 
         // Amount Field
-        JLabel amountLabel = new JLabel(EXPENSES_ICON + " Amount:");
+        JLabel amountLabel = new JLabel(" Amount:");
         JTextField amountField = new JTextField(expense.getAmount().toString());
         addFormField(formPanel, amountLabel, amountField, gbc, 1);
 
         // Category Field
-        JLabel categoryLabel = new JLabel("🏷️ Category:");
+        JLabel categoryLabel = new JLabel("Category:");
         String[] categories = {"Food", "Transport", "Shopping", "Entertainment", "Bills", "Others"};
         JComboBox<String> categoryBox = new JComboBox<>(categories);
         categoryBox.setSelectedItem(expense.getCategoryName());
         addFormField(formPanel, categoryLabel, categoryBox, gbc, 2);
 
         // Description Field
-        JLabel descLabel = new JLabel("📝 Description:");
+        JLabel descLabel = new JLabel("Description:");
         JTextField descField = new JTextField(expense.getDescription());
         addFormField(formPanel, descLabel, descField, gbc, 3);
 
